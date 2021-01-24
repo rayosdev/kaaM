@@ -6,12 +6,21 @@
             v-bind:class="snakePieceInBox(i)"
         >
             {{ snakePieceInBox(i).includes('head')? headNumber : i}}
+            <apple 
+                v-if="applesOnGrid.includes(i)"
+                question="2 x 5"
+            />
         </div>
     </div>
 </template>
 
 <script>
+import Apple from './Apple'
+
 export default {
+    components: {
+        'apple': Apple,
+    },
     data() {
         return {
             gridMap: [
@@ -27,7 +36,10 @@ export default {
             },
             gameOver: false,
             headNumber: 10,
-            gamePaused: false
+            gamePaused: false,
+            applesOnGrid: [20, 122],
+            applesData: [],
+            equationRange: {min: 0, max: 5}
         }
     },
     methods: {
@@ -44,9 +56,10 @@ export default {
         gameLoop(){
             if(this.gameOver) return
             this.snakeMovement()
-
+            this.hitIntractables()
             
-            this.$forceUpdate();
+            // f0rce update update DOM
+            this.$forceUpdate()
         },
         snakeMovement(){
             const headDir = this.HeadDirection
@@ -134,14 +147,76 @@ export default {
                 clearInterval(this.gameInterval)
             }
         },
-        restartGame(){
-            console.log("Restart Game")
-            this.gameOver = false
+        newGame(){
+            console.log("Starting new game")
+            // cleanup from last game
+            this.setGameLoop(false)
+            
+            // setup
             this.snake = this.snakeStartState
-            this.setGameLoop(true)
             this.HeadDirection = {
                 next:'',
                 now:'Right'
+            }
+            this.newApples()
+
+
+            this.gameOver = false
+            this.setGameLoop(true)
+
+        },
+        newApples(amount=2){
+
+            // grid placement
+            let newApplesOnGrid = []
+            for (let i = 0; i < amount; i++) {
+                // pick random placement
+                let foundPlacement = false
+                let place = 0
+                while(foundPlacement == false) {
+                    place = Math.floor(Math.random() * 235) + 18 // trying to avoid top row and sides 
+                    if(place % 17 == 16 || place % 17 == 0) continue //testing for sides
+                    if(this.snake.includes(place)) continue
+                    // make sure apples are on or beside eachother
+                    if(newApplesOnGrid.includes(place)) continue
+                    if(newApplesOnGrid.includes(place + 1)) continue
+                    if(newApplesOnGrid.includes(place - 1)) continue
+
+                    foundPlacement = true
+                }
+                newApplesOnGrid.push(place)
+            }
+            // update ready for DOM update
+            this.applesOnGrid = newApplesOnGrid
+
+
+            // generate solution, equation and decoy equations
+            
+            // helper functions
+            function getRandomInt() {
+                const min = Math.ceil(this.equationRange.min);
+                const max = Math.floor(this.equationRange.max);
+                return Math.floor(Math.random() * (max - min) + min)
+            }
+
+            function getEquationAndAnswer() {
+                let a = getRandomInt()
+                let b = getRandomInt()
+                return {answer: a * b, equationString: `${a} x ${b}`}
+            }
+
+            // select answer
+            let applesData = []
+            
+            //find 
+
+            
+
+        },
+        hitIntractables(){
+            const snakeHead = this.snake[this.snake.length - 1]
+            if(this.applesOnGrid.includes(snakeHead)){
+                this.newApples()
             }
         }
     },
@@ -163,9 +238,13 @@ export default {
                 this.setGameLoop(this.pauseGame)
             }
 
-            if(e.key.toUpperCase() == 'R' && this.gameOver){
-                console.log("OK THEMN")
-                this.restartGame()
+            // if(e.key.toUpperCase() == 'R' && this.gameOver){
+            if(e.key.toUpperCase() == 'R'){
+                this.newGame()
+            }
+
+            if(e.key.toUpperCase() == 'D'){
+                this.newApples()
             }
 
         }) // --> Get Input

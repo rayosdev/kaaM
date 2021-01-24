@@ -21,8 +21,15 @@ export default {
   width: 100%;
 }
 
-body {
+html {
+  height: 100vh;
+  width: 100%;
+  background-size: cover;
   background: linear-gradient(360deg, $secondary 0%, $primary 100%);
+  background-repeat:no-repeat;
+}
+
+body {
   
   * {
       box-sizing: border-box;
