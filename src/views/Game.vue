@@ -1,18 +1,16 @@
 <template>
-  <div class="Game">
-    <h1>This is the Game</h1>
-    <div id="facetest">
-      <button v-on:click="show = !show">
-        Toggle Fade
-      </button>
-      <transition name="fade">
-        <p v-if="show">transition</p>
-      </transition>
-    </div>
+  <div class="game-container">
+    <game-board />
+    <div class="score-board"></div>
+    <div class="instruction-footer"></div>
   </div>
 </template>
 <script>
+import GameBoard from '../components/GameBoard.vue'
 export default {
+  components: {
+    'game-board': GameBoard
+  },
   data() {
     return {
       show: true
@@ -21,6 +19,7 @@ export default {
 }
 </script>
 <style lang="scss">
+@import url("../../scss/game.scss");
 .fade-enter-active, .fade-leave-active {
   transition: opacity .5s;
 }

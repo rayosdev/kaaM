@@ -1,7 +1,7 @@
 <template>
   <div class="start">
-    <img alt="Game logo" src="../assets/KaaM-logo.svg">
-    <Message msg="Kaa Math game"/>
+    <img alt="Game logo" src="../assets/KaaM-logo-light.svg">
+    <Message msg="Kaa a Math game"/>
   </div>
 </template>
 
@@ -16,3 +16,12 @@ export default {
   }
 }
 </script>
+<style lang="scss">
+  .start {
+    width: 100vw;
+    height: 100vh;
+    display: grid;
+    justify-content: center;
+    align-content: center;
+  }
+</style>
