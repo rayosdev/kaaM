@@ -18,14 +18,16 @@ export default {
                 ... new Array(255).fill(0)
             ],
             snake: [1, 2, 3, 4, 5],
+            snakeStartState: [1, 2, 3, 4, 5],
             gameInterval: null,
-            gameSpeed: 220,
+            gameSpeed: 120,
             HeadDirection: {
                 next:'',
                 now:'Right'
             },
             gameOver: false,
-            headNumber: 10
+            headNumber: 10,
+            gamePaused: false
         }
     },
     methods: {
@@ -41,6 +43,12 @@ export default {
 
         gameLoop(){
             if(this.gameOver) return
+            this.snakeMovement()
+
+            
+            this.$forceUpdate();
+        },
+        snakeMovement(){
             const headDir = this.HeadDirection
 
             // Potentials update direction
@@ -103,14 +111,38 @@ export default {
                 // all other pieces just follows
                 return pieceInFront
             });
-
-            
-            this.$forceUpdate();
         },
         endGame(){
             console.log("BANG GAME ENDED")
-            clearInterval(this.gameInterval)
+            this.setGameLoop(false)
             this.gameOver = true
+        },
+        pauseGame(){
+            if(this.gameOver) return
+            console.log("Game paused", this.gamePaused)
+            this.setGameLoop(false)
+        },
+        setGameLoop(activate){
+            console.log("Change Game Looop")
+            if(activate) {
+                // init game interval
+                this.gameInterval = setInterval(
+                    this.gameLoop, // run gameLoop function 
+                    this.gameSpeed // how fast to run that function
+                )
+            }else { // disable game loop
+                clearInterval(this.gameInterval)
+            }
+        },
+        restartGame(){
+            console.log("Restart Game")
+            this.gameOver = false
+            this.snake = this.snakeStartState
+            this.setGameLoop(true)
+            this.HeadDirection = {
+                next:'',
+                now:'Right'
+            }
         }
     },
     created() {
@@ -118,18 +150,32 @@ export default {
         // Get Input
         window.addEventListener('keydown', e => {
             
-            //TODO fix no lock before tick
-            if(e.key.includes("Arrow") == false) return
-            this.HeadDirection.next = e.key.replace(/Arrow/g,'')
-        })
-        
+            // Move directions
+            if(e.key.includes("Arrow")) {
+                if(this.gameOver || this.gamePaused) return 
+                this.HeadDirection.next = e.key.replace(/Arrow/g,'')
+            }
+
+            // Pause gameLoop 
+            //TODO disable after development or make into a game feature 
+            if(e.key.toUpperCase() == 'P'){ 
+                this.pauseGame = !this.pauseGame
+                this.setGameLoop(this.pauseGame)
+            }
+
+            if(e.key.toUpperCase() == 'R' && this.gameOver){
+                console.log("OK THEMN")
+                this.restartGame()
+            }
+
+        }) // --> Get Input
+
         //Start Game Loop
-        setTimeout( () => {
-            this.gameInterval = setInterval(
-                this.gameLoop, 
-                this.gameSpeed
-            )
+        setTimeout( () => { // wait before start
+            this.setGameLoop(true)
         }, 2000)
+        
+        
     },
 }
 </script>
