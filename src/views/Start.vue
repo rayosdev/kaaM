@@ -13,7 +13,10 @@ export default {
   name: 'Start',
   components: {
     Message
-  }
+  },
+  created() {
+    setTimeout(() => this.$router.push("Game"), 1000)
+  },
 }
 </script>
 <style lang="scss">

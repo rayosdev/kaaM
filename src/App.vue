@@ -8,9 +8,7 @@
 <script>
 
 export default {
-  created() {
-    setTimeout(() => this.$router.push("Game"), 1000)
-  },
+
 }
 </script>
 
@@ -32,7 +30,7 @@ body {
 }
 
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
+  // font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;

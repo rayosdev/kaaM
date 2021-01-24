@@ -4,6 +4,7 @@ module.exports = {
             sass: {
                 prependData: `
                     @import "./scss/_variables.scss";
+                    @import "./scss/_typogrophy.scss";
                 `
             }
         }
