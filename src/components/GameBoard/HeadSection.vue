@@ -12,7 +12,7 @@
             <h4>Level <span>{{level}}</span></h4>
             <div class="levelup-countdown">
                 <div class="progress"
-                    v-bind:style="{width: levelUpTimer + '%'}"
+                    v-bind:style="{width: levelUpTimer + '%', opacity: levelUpTimer / 100}"
                 ></div>
             </div>
         </div>

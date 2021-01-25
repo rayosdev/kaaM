@@ -20,7 +20,7 @@
 <style lang="scss" scoped>
     .apple {
         position: relative;
-        top: -13px;
+        top: -2px;
         animation: animOnEntry 0.2s cubic-bezier(0,.55,.19,1.16);
     }
     .sign {

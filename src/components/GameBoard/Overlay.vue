@@ -5,7 +5,8 @@
             idle: state == 'idle',
             hit: state == 'hit',
             gain: state == 'gain',
-            gameover: state == 'gameover'
+            gameover: state == 'gameover',
+            levelup: state == 'levelup'
         }"
     >
         <div class="announcement">
@@ -55,6 +56,14 @@ export default {
                 this.text = ""
                 this.byline = ""
             }
+            if(state == 'levelup'){
+                setTimeout(() => this.setState('idle'), 2300)
+                const level = args[0]
+                const reward = args[1]
+
+                this.text = "LEVELUP " + level
+                this.byline = `+${reward}`
+            }
         }
     },
     watch: {
@@ -67,13 +76,6 @@ export default {
             this.$forceUpdate()
         }
     },
-    // created() {
-    //     window.addEventListener("keypress", e => {
-    //         if(e.key == 'h'){
-    //             this.setState('hit')
-    //         }else{ this.setState('idle')}
-    //     })
-    // },
 }
 </script>
 
@@ -127,6 +129,15 @@ export default {
 
     .announcement {
         opacity: 1;
+    }
+}
+
+.levelup {
+    transition: all 0.2s;
+    opacity: 1;
+    .announcement {
+        h2 {font-size: 25px;}
+        animation: small-to-big 0.4s;
     }
 }
 

@@ -1,16 +1,19 @@
 <template>
-    <div class="grid-container">
-        <overlay ref="overlay" />
-        <div class="grid-block"
-            v-for="(block, i) in gridMap"
-            :key="i"
-            v-bind:class="snakePieceInBox(i)"
-        >
-            {{ snakePieceInBox(i).includes('head')? headNumber : i}}
-            <apple 
-                v-if="applesOnGrid.includes(i)"
-                :question="loadEquation(applesOnGrid.includes(i), i)"
-            />
+    <div class="grid-wrapper">
+        <h2 class="snake-head-title">{{headNumber}}</h2>
+        <div class="grid-container">
+            <overlay ref="overlay" />
+            <div class="grid-block"
+                v-for="(block, i) in gridMap"
+                :key="i"
+                v-bind:class="snakePieceInBox(i)"
+            >
+                {{ snakePieceInBox(i).includes('head')? headNumber : ''}}
+                <apple 
+                    v-if="applesOnGrid.includes(i)"
+                    :question="loadEquation(applesOnGrid.includes(i), i)"
+                />
+            </div>
         </div>
     </div>
 </template>
@@ -46,10 +49,11 @@ export default {
             gamePaused: false,
             applesOnGrid: [],
             applesData: [],
-            equationRange: {min: 1, max: 5},
+            equationRange: {min: 2, max: 7},
             hit: false,
-            score: 0
-            
+            score: 0,
+            levelUpSpeed: 50,
+            appleAmount: 2
         }
     },
     methods: {
@@ -155,18 +159,25 @@ export default {
                     this.gameSpeed // how fast to run that function
                 )
                 this.scorePerSecondInterval = setInterval(() => this.score += 1, 100)
-                this.levelUpInterval = setInterval(() => {
-                    this.levelUpTimer += 1
-                    if(this.levelUpTimer >= 100){
-                        this.levelUpTimer = 0
-                        this.level += 1
-                    }
-                } ,200)
+                this.createLevelUpTimer()
             }else { // disable game loop
                 clearInterval(this.gameInterval)
                 clearInterval(this.scorePerSecondInterval)
                 clearInterval(this.levelUpInterval)
             }
+        },
+        createLevelUpTimer(){
+            this.levelUpInterval = setInterval(() => { // set interval
+                this.levelUpTimer += 1 // set one tick
+                if(this.levelUpTimer >= 100){
+                    this.levelUpTimer = 0
+                    this.level += 1
+                    this.levelUp()
+                    clearInterval(this.levelUpInterval) // clear interval
+                    this.levelUpSpeed = 50 + (10 * this.level) // set growth speed curve
+                    this.createLevelUpTimer() // start timer
+                }
+            } ,this.levelUpSpeed)
         },
         newGame(){
             console.log("Starting new game")
@@ -175,6 +186,10 @@ export default {
             
             // setup
             this.score = 0
+            this.levelUpTimer = 0
+            this.level = 1
+            this.gameSpeed = 160
+            this.appleAmount = 2
             this.snake = this.snakeStartState
             this.HeadDirection = {
                 next:'',
@@ -187,8 +202,8 @@ export default {
             this.$refs.overlay.setState('newgame')
 
         },
-        newApples(amount=2){
-
+        newApples(){
+            const amount = this.appleAmount
             // grid placement
             let newApplesOnGrid = []
             for (let i = 0; i < amount; i++) {
@@ -214,7 +229,7 @@ export default {
             // helper functions for answerSet generation
             function getRandomInt(range) {
                 const min = Math.ceil(range.min);
-                const max = Math.floor(range.max);
+                const max = Math.floor(range.max + 1);
                 return Math.floor(Math.random() * (max - min) + min)
             }
 
@@ -258,7 +273,6 @@ export default {
                 if(appleIndex == 0) { // first index is the correct answer
                     this.$refs.overlay.setState('gain', "+100")
                     this.score += 100
-                    console.log(this.score, localStorage.score)
                 } else {
                     this.snake.unshift(999)
                     this.snake.unshift(999)
@@ -276,6 +290,18 @@ export default {
             const appleIndex = this.applesOnGrid.findIndex(i => i == index) // find corresponding index
             return this.applesData[appleIndex].equation
         },
+        levelUp(){
+            if(this.level % 5 == 0 && this.appleAmount < 4) {this.appleAmount +=1}
+            else if (this.level % 3 == 0 && this.gameSpeed <= 80) {
+                this.gameSpeed -= 60
+            }else {
+                this.snake.unshift(999)
+                this.snake.unshift(999)
+            }
+            const reward = Math.floor((150 * this.level) / 2) 
+            this.score += reward
+            this.$refs.overlay.setState('levelup', [this.level, reward])
+        }
     },
     created() {
 
@@ -298,10 +324,6 @@ export default {
             // if(e.key.toUpperCase() == 'R' && this.gameOver){
             if(e.key.toUpperCase() == 'R'){
                 this.newGame()
-            }
-
-            if(e.key.toUpperCase() == 'D'){
-                this.newApples()
             }
 
         }) // --> Get Input
@@ -357,6 +379,17 @@ export default {
     position: relative;
     overflow: hidden;
     border-radius: 0px 0px 8px 8px;
+}
+
+.snake-head-title {
+    position: absolute;
+    left: calc(50% - 30px);
+    top: 0;
+    z-index: 100;
+    display: table;
+    background: $primary;
+    color: $text-white;
+    padding: 10px 20px;
 }
 
 .grid-block {
