@@ -32,6 +32,10 @@ export default {
             snake: [92, 93],
             snakeStartState: [92, 93],
             gameInterval: null,
+            scorePerSecondInterval: null,
+            levelUpInterval: null,
+            level: 1,
+            levelUpTimer: 0,
             gameSpeed: 180,
             HeadDirection: {
                 next:'',
@@ -133,9 +137,9 @@ export default {
         },
         endGame(){
             console.log("BANG GAME ENDED")
-            this.$refs.overlay.setState('gameover')
             this.setGameLoop(false)
             this.gameOver = true
+            this.$refs.overlay.setState('gameover')
         },
         pauseGame(){
             if(this.gameOver) return
@@ -143,24 +147,34 @@ export default {
             this.setGameLoop(false)
         },
         setGameLoop(activate){
-            console.log("Change Game Looop")
+            console.log("Game Looop is: ", activate)
             if(activate) {
                 // init game interval
                 this.gameInterval = setInterval(
                     this.gameLoop, // run gameLoop function 
                     this.gameSpeed // how fast to run that function
                 )
+                this.scorePerSecondInterval = setInterval(() => this.score += 1, 100)
+                this.levelUpInterval = setInterval(() => {
+                    this.levelUpTimer += 1
+                    if(this.levelUpTimer >= 100){
+                        this.levelUpTimer = 0
+                        this.level += 1
+                    }
+                } ,200)
             }else { // disable game loop
                 clearInterval(this.gameInterval)
+                clearInterval(this.scorePerSecondInterval)
+                clearInterval(this.levelUpInterval)
             }
         },
         newGame(){
             console.log("Starting new game")
             // cleanup from last game
             this.setGameLoop(false)
-            this.$refs.overlay.setState('newgame')
             
             // setup
+            this.score = 0
             this.snake = this.snakeStartState
             this.HeadDirection = {
                 next:'',
@@ -170,6 +184,7 @@ export default {
 
             this.gameOver = false
             this.setGameLoop(true)
+            this.$refs.overlay.setState('newgame')
 
         },
         newApples(amount=2){
@@ -241,8 +256,12 @@ export default {
             if(this.applesOnGrid.includes(snakeHead)){
                 const appleIndex = this.applesOnGrid.findIndex(i => i == snakeHead)
                 if(appleIndex == 0) { // first index is the correct answer
-                    this.$refs.overlay.setState('gain', "+10")
+                    this.$refs.overlay.setState('gain', "+100")
+                    this.score += 100
+                    console.log(this.score, localStorage.score)
                 } else {
+                    this.snake.unshift(999)
+                    this.snake.unshift(999)
                     this.snake.unshift(999)
                     this.snake.unshift(999)
 
@@ -294,6 +313,40 @@ export default {
         
         
     },
+    mounted() {
+        if (localStorage.score) {
+            this.score = parseInt(localStorage.score);
+        }else{
+            localStorage.score = 0
+            this.score = parseInt(localStorage.score);
+        }
+
+        if (localStorage.level) {
+            this.level = parseInt(localStorage.level);
+        }else{
+            localStorage.level = 1
+            this.level = parseInt(localStorage.level);
+        }
+
+        if (localStorage.levelUpTimer) {
+            this.levelUpTimer = parseInt(localStorage.levelUpTimer);
+        }else{
+            localStorage.levelUpTimer = 1
+            this.levelUpTimer = parseInt(localStorage.levelUpTimer);
+        }
+    },
+    watch: {
+        score(newScore){
+            localStorage.score = newScore
+        },
+        level(newLevel){
+            localStorage.level = newLevel
+        },
+        levelUpTimer(newLevelUpTimer){
+            localStorage.levelUpTimer = newLevelUpTimer
+        }
+
+    }
 }
 </script>
 
@@ -302,6 +355,8 @@ export default {
     display: flex;
     flex-wrap: wrap;
     position: relative;
+    overflow: hidden;
+    border-radius: 0px 0px 8px 8px;
 }
 
 .grid-block {
