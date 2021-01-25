@@ -3,7 +3,7 @@
         <div class="sign">
             <p>{{question}}</p>
         </div>
-        <img src="../../assets/apple.svg">
+        <img src="../../assets/apple.png">
     </div>
 </template>
 

@@ -1,5 +1,6 @@
 <template>
     <div class="grid-container">
+        <overlay ref="overlay" />
         <div class="grid-block"
             v-for="(block, i) in gridMap"
             :key="i"
@@ -8,7 +9,7 @@
             {{ snakePieceInBox(i).includes('head')? headNumber : i}}
             <apple 
                 v-if="applesOnGrid.includes(i)"
-                question="2 x 5"
+                :question="loadEquation(applesOnGrid.includes(i), i)"
             />
         </div>
     </div>
@@ -16,20 +17,22 @@
 
 <script>
 import Apple from './Apple'
+import Overlay from './Overlay'
 
 export default {
     components: {
         'apple': Apple,
+        'overlay': Overlay,
     },
     data() {
         return {
             gridMap: [
                 ... new Array(255).fill(0)
             ],
-            snake: [1, 2, 3, 4, 5],
-            snakeStartState: [1, 2, 3, 4, 5],
+            snake: [92, 93],
+            snakeStartState: [92, 93],
             gameInterval: null,
-            gameSpeed: 120,
+            gameSpeed: 180,
             HeadDirection: {
                 next:'',
                 now:'Right'
@@ -37,9 +40,12 @@ export default {
             gameOver: false,
             headNumber: 10,
             gamePaused: false,
-            applesOnGrid: [20, 122],
+            applesOnGrid: [],
             applesData: [],
-            equationRange: {min: 0, max: 5}
+            equationRange: {min: 1, max: 5},
+            hit: false,
+            score: 0
+            
         }
     },
     methods: {
@@ -127,6 +133,7 @@ export default {
         },
         endGame(){
             console.log("BANG GAME ENDED")
+            this.$refs.overlay.setState('gameover')
             this.setGameLoop(false)
             this.gameOver = true
         },
@@ -151,6 +158,7 @@ export default {
             console.log("Starting new game")
             // cleanup from last game
             this.setGameLoop(false)
+            this.$refs.overlay.setState('newgame')
             
             // setup
             this.snake = this.snakeStartState
@@ -159,7 +167,6 @@ export default {
                 now:'Right'
             }
             this.newApples()
-
 
             this.gameOver = false
             this.setGameLoop(true)
@@ -186,39 +193,70 @@ export default {
                 }
                 newApplesOnGrid.push(place)
             }
-            // update ready for DOM update
-            this.applesOnGrid = newApplesOnGrid
+            this.applesOnGrid = newApplesOnGrid // update set for DOM-update
 
-
-            // generate solution, equation and decoy equations
-            
-            // helper functions
-            function getRandomInt() {
-                const min = Math.ceil(this.equationRange.min);
-                const max = Math.floor(this.equationRange.max);
+            // generate answerSets with solution and equation, one real one, decoys for the rest 
+            // helper functions for answerSet generation
+            function getRandomInt(range) {
+                const min = Math.ceil(range.min);
+                const max = Math.floor(range.max);
                 return Math.floor(Math.random() * (max - min) + min)
             }
 
-            function getEquationAndAnswer() {
-                let a = getRandomInt()
-                let b = getRandomInt()
-                return {answer: a * b, equationString: `${a} x ${b}`}
+            function getAnswerSet(range) {
+                let a = getRandomInt(range)
+                let b = getRandomInt(range)
+                return {answer: a * b, equation: `${a} x ${b}`}
             }
 
-            // select answer
-            let applesData = []
-            
-            //find 
+            // setup real answerSet and decoySets 
+            let applesData = [] 
+            for(let i = 0; i <= amount; i++) {
+                let newAnswerSet
+                
+                if(applesData.length == 0) { 
+                    applesData.push(getAnswerSet(this.equationRange)) // first index need for test under
+                    continue // run next loop iteration
+                }
 
-            
-
+                let isDuplicate = true
+                while(isDuplicate == true){ // if duplicate found, do again
+                    newAnswerSet = getAnswerSet(this.equationRange)
+                    isDuplicate = false
+                    for (const j in applesData) { // run through all existing answerSets
+                        if(applesData[j].answer == newAnswerSet.answer ||
+                            applesData[j].equation == newAnswerSet.equation){
+                                isDuplicate = true
+                                break // run again
+                            }
+                    }
+                }
+                applesData.push(newAnswerSet) // populate all answerSets except first one
+            }
+            this.applesData = applesData
+            this.headNumber = this.applesData[0].answer
         },
         hitIntractables(){
             const snakeHead = this.snake[this.snake.length - 1]
             if(this.applesOnGrid.includes(snakeHead)){
+                const appleIndex = this.applesOnGrid.findIndex(i => i == snakeHead)
+                if(appleIndex == 0) { // first index is the correct answer
+                    this.$refs.overlay.setState('gain', "+10")
+                } else {
+                    this.snake.unshift(999)
+                    this.snake.unshift(999)
+
+                    this.$refs.overlay.setState('hit')
+                }
                 this.newApples()
             }
-        }
+        },
+        loadEquation(isApple, index){
+            if(isApple == false) return // check to make sure it is an apple index
+            if(this.applesData[0] == undefined) return '...' // make sure that applesData has been generated
+            const appleIndex = this.applesOnGrid.findIndex(i => i == index) // find corresponding index
+            return this.applesData[appleIndex].equation
+        },
     },
     created() {
 
@@ -251,7 +289,7 @@ export default {
 
         //Start Game Loop
         setTimeout( () => { // wait before start
-            this.setGameLoop(true)
+            this.newGame()
         }, 2000)
         
         
@@ -260,28 +298,42 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-    .grid-container {
-        display: flex;
-        flex-wrap: wrap;
-    }
+.grid-container {
+    display: flex;
+    flex-wrap: wrap;
+    position: relative;
+}
 
-    .grid-block {
-        height: 40.9px;
-        width: 40.9px;
-        display: grid;
-        justify-content: center;
-        align-content: center;
-        border: solid 0.2px $light-light-gray;
-        font-weight: 700;
-        font-size: 16px;
-        color:#ffffff00;
-    }
+.grid-block {
+    height: 40.9px;
+    width: 40.9px;
+    display: grid;
+    justify-content: center;
+    align-content: center;
+    border: solid 0.2px $light-light-gray;
+    font-weight: 700;
+    font-size: 16px;
+    color:#ffffff00;
+}
 
-    .snake {
-        background: $primary;
-    }
+.snake {
+    background: $primary;
+}
 
-    .snake.head {
-        color: $text-white;
-    }
+.snake.head {
+    color: $text-white;
+}
+
+.snake.hit {
+    animation: hit 0.2s;
+}
+
+@keyframes hit {
+    0%{background: $primary;} 
+    25%{background: $secondary;}
+    50%{background: $primary;}
+    75%{background: $secondary;}
+    100%{background: $primary;}
+}
+
 </style>
