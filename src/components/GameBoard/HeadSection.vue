@@ -68,9 +68,6 @@ export default {
         color: $primary
     }
 }
-.bonuscheck-container {
-
-}
 
 .levelup-container {
     text-align: right;

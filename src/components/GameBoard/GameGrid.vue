@@ -49,7 +49,7 @@ export default {
             gamePaused: false,
             applesOnGrid: [],
             applesData: [],
-            equationRange: {min: 2, max: 7},
+            equationRange: {min: 2, max: 6},
             hit: false,
             score: 0,
             levelUpSpeed: 50,
