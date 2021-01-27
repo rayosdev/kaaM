@@ -7,6 +7,7 @@ export default new Vuex.Store({
   state: {
     footerOpen: false,
     playerName: "",
+    newHeighscoreUpdate: false
   },
   mutations: {
     setFooterOpen(state, payload){
@@ -14,6 +15,9 @@ export default new Vuex.Store({
     },
     setPlayerName(state, payload){
       state.playerName = payload
+    },
+    setNewHeighscoreUpdate(state, payload){
+      state.newHeighscoreUpdate = payload
     }
   },
   actions: {
@@ -21,7 +25,8 @@ export default new Vuex.Store({
   },
   getters: {
     getFooterOpen: state => state.footerOpen,
-    getPlayerName: state => state.playerName
+    getPlayerName: state => state.playerName,
+    getNewHeighscoreUpdate: state => state.newHeighscoreUpdate
   },
   modules: {
   }

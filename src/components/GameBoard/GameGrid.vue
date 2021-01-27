@@ -21,7 +21,7 @@
 <script>
 import Apple from './Apple'
 import Overlay from './Overlay'
-
+import {mapMutations} from 'vuex'
 export default {
     components: {
         'apple': Apple,
@@ -58,8 +58,13 @@ export default {
             speedUpUnitPerLevel: 60
         }
     },
+    computed: {
+        playerName(){
+            return this.$store.getters.getPlayerName
+        }
+    },
     methods: {
-
+        ...mapMutations(['setNewHeighscoreUpdate']),
         startGame(difficulty){
 
             if(difficulty == 'start') {
@@ -168,6 +173,17 @@ export default {
             this.setGameLoop(false)
             this.gameOver = true
             this.$refs.overlay.setState('gameover')
+            // save highscore
+            let heighscore = JSON.parse(localStorage.heighscore)
+            heighscore.push(
+                {
+                    name: this.playerName,
+                    score: this.score
+                }
+            )
+            heighscore = heighscore.sort((a, b) => b.score - a.score)
+            localStorage.heighscore = JSON.stringify(heighscore)
+            this.setNewHeighscoreUpdate(true)
         },
         pauseGame(){
             if(this.gameOver) return

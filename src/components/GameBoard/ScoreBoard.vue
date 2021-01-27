@@ -17,75 +17,88 @@
 </template>
 
 <script>
+import {mapGetters, mapMutations} from 'vuex'
 export default {
     data() {
         return {
             heighscore: []
         }
     },
+    methods: {
+        ...mapMutations(['setNewHeighscoreUpdate']),
+        getHighscore(){
+            if (localStorage.heighscore) {
+                this.heighscore = JSON.parse(localStorage.heighscore)
+            }else{
+                localStorage.heighscore = JSON.stringify([
+                    {
+                        name: 'Galadriel',
+                        score: 3300
+                    },
+                    {
+                        name: 'Frodo',
+                        score: 2830
+                    },
+                    {
+                        name: 'Sauron',
+                        score: 2630
+                    },
+                    {
+                        name: 'Legolas',
+                        score: 2100
+                    },
+                    {
+                        name: 'Éowyn',
+                        score: 2040
+                    },
+                    {
+                        name: 'Samwise Gamgee',
+                        score: 1800
+                    },
+                    {
+                        name: 'Gandalf',
+                        score: 1600
+                    },
+                    {
+                        name: 'Pippin Took',
+                        score: 1560
+                    },
+                    {
+                        name: 'Faramir',
+                        score: 1490
+                    },
+                    {
+                        name: 'Nazgûl',
+                        score: 1410
+                    },
+                    {
+                        name: 'Aragorn',
+                        score: 1110
+                    },
+                    {
+                        name: 'Gollum',
+                        score: 600
+                    },
+                ])
+                this.heighscore = JSON.parse(localStorage.heighscore)
+            }
+        }
+    },
     computed: {
         playerName(){
             return this.$store.getters.getPlayerName
-        }
+        },
+        // mapState(['newHeighscoreUpdate'])
     },
     mounted() {
-        if (localStorage.heighscore) {
-            this.heighscore = JSON.parse(localStorage.heighscore)
-        }else{
-            localStorage.heighscore = JSON.stringify([
-                {
-                    name: 'Galadriel',
-                    score: 3300
-                },
-                {
-                    name: 'Frodo',
-                    score: 2830
-                },
-                {
-                    name: 'Sauron',
-                    score: 2630
-                },
-                {
-                    name: 'Legolas',
-                    score: 2100
-                },
-                {
-                    name: 'Éowyn',
-                    score: 2040
-                },
-                {
-                    name: 'Samwise Gamgee',
-                    score: 1800
-                },
-                {
-                    name: 'Gandalf',
-                    score: 1600
-                },
-                {
-                    name: 'Pippin Took',
-                    score: 1560
-                },
-                {
-                    name: 'Faramir',
-                    score: 1490
-                },
-                {
-                    name: 'Nazgûl',
-                    score: 1410
-                },
-                {
-                    name: 'Aragorn',
-                    score: 1110
-                },
-                {
-                    name: 'Gollum',
-                    score: 600
-                },
-            ])
-            this.heighscore = JSON.parse(localStorage.heighscore)
-        }
-        console.log(this.heighscore)
+        this.getHighscore()
     },
+    watch: {
+        newHeighscoreUpdate(){
+            this.getHighscore()
+            console.log("new score")
+        }
+    }
 }
 </script>
 
