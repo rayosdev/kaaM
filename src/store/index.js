@@ -20,7 +20,8 @@ export default new Vuex.Store({
 
   },
   getters: {
-    getFooterOpen: state => state.footerOpen
+    getFooterOpen: state => state.footerOpen,
+    getPlayerName: state => state.playerName
   },
   modules: {
   }
