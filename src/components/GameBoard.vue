@@ -1,7 +1,7 @@
 <template>
     <div class="game-board">
 
-        <head-section />
+        <head-section  />
         <game-grid />
         
     </div>
@@ -15,7 +15,7 @@ export default {
     components: {
         'head-section': HeadSection,
         'game-grid': GameGrid
-    },
+    }
 }
 </script>
 

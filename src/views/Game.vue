@@ -2,14 +2,17 @@
   <div class="game-container">
     <game-board />
     <div class="score-board"></div>
-    <div class="instruction-footer"></div>
+    <instruction-footer />
   </div>
 </template>
 <script>
 import GameBoard from '../components/GameBoard.vue'
+import InstructionFooter from '../components/InstructionFooter.vue'
+
 export default {
   components: {
-    'game-board': GameBoard
+    'game-board': GameBoard,
+    'instruction-footer': InstructionFooter,
   },
   data() {
     return {

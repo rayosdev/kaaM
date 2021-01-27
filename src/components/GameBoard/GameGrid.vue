@@ -46,17 +46,19 @@ export default {
             },
             gameOver: false,
             headNumber: 10,
-            gamePaused: false,
+            gamePaused: false, // oly for debug purposes
             applesOnGrid: [],
             applesData: [],
             equationRange: {min: 2, max: 6},
             hit: false,
             score: 0,
             levelUpSpeed: 50,
-            appleAmount: 2
+            appleAmount: 2,
+            Debug: false
         }
     },
     methods: {
+
         snakePieceInBox(boxIndex){ // Snake visibility, grid styling
             for (const piece of this.snake) {
                 if(piece == boxIndex) {
@@ -316,22 +318,20 @@ export default {
 
             // Pause gameLoop 
             //TODO disable after development or make into a game feature 
-            if(e.key.toUpperCase() == 'P'){ 
+            if(e.key.toUpperCase() == 'P'){
+                if(this.Debug == false) return
                 this.pauseGame = !this.pauseGame
                 this.setGameLoop(this.pauseGame)
             }
 
             // if(e.key.toUpperCase() == 'R' && this.gameOver){
             if(e.key.toUpperCase() == 'R'){
-                this.newGame()
+                if(this.gameOver || this.Debug){
+                    this.newGame()
+                }
             }
 
         }) // --> Get Input
-
-        //Start Game Loop
-        setTimeout( () => { // wait before start
-            this.newGame()
-        }, 2000)
         
         
     },
@@ -356,6 +356,9 @@ export default {
             localStorage.levelUpTimer = 1
             this.levelUpTimer = parseInt(localStorage.levelUpTimer);
         }
+
+        //Start Game Loop
+        this.$refs.overlay.setState('gamestart')
     },
     watch: {
         score(newScore){
