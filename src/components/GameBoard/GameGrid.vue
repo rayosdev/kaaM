@@ -2,7 +2,7 @@
     <div class="grid-wrapper">
         <h2 class="snake-head-title">{{headNumber}}</h2>
         <div class="grid-container">
-            <overlay ref="overlay" />
+            <overlay ref="overlay"  v-on:gamestartEvent="startGame"/>
             <div class="grid-block"
                 v-for="(block, i) in gridMap"
                 :key="i"
@@ -54,10 +54,32 @@ export default {
             score: 0,
             levelUpSpeed: 50,
             appleAmount: 2,
-            Debug: false
+            Debug: false,
+            speedUpUnitPerLevel: 60
         }
     },
     methods: {
+
+        startGame(difficulty){
+
+            if(difficulty == 'start') {
+                this.equationRange = {min: 0, max: 3}
+                this.speedUpUnitPerLevel = 10
+            }
+            else if(difficulty == 'middle') {
+                this.equationRange = {min: 2, max: 5}
+                this.speedUpUnitPerLevel = 40
+            }
+            else if(difficulty == 'advanced') {
+                this.equationRange = {min: 2, max: 10}
+            }
+            else if(difficulty == 'imposable') {
+                this.equationRange = {min: 4, max: 100}
+                this.speedUpUnitPerLevel = 75
+            }
+
+            this.newGame()
+        },
 
         snakePieceInBox(boxIndex){ // Snake visibility, grid styling
             for (const piece of this.snake) {
@@ -294,8 +316,15 @@ export default {
         },
         levelUp(){
             if(this.level % 5 == 0 && this.appleAmount < 4) {this.appleAmount +=1}
-            else if (this.level % 3 == 0 && this.gameSpeed <= 80) {
-                this.gameSpeed -= 60
+            else if (this.level % 3 == 0) {
+                
+                if((this.gameSpeed - this.speedUpUnitPerLevel) >= 80){
+                    this.gameSpeed -= this.speedUpUnitPerLevel
+                }else{
+                    this.gameSpeed = 80
+                }
+                this.setGameLoop(false)
+                this.setGameLoop(true)
             }else {
                 this.snake.unshift(999)
                 this.snake.unshift(999)

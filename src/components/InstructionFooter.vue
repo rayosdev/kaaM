@@ -93,7 +93,8 @@ export default {
 
         .content {
             display: grid;
-            max-width: 1200px;
+            max-width: calc(1200px - 2em);
+            width: 90%;
             height: 100%;
             margin: 0 auto;
             padding: 1em;
@@ -113,8 +114,9 @@ export default {
             grid-row: 1/2;
             width: 100%;
             height: 90%;
-            padding: 3em;
+            padding-top: 2em;
             display: grid;
+            overflow: hidden;
             grid-template-rows: 1fr 1fr 1fr;
             opacity: 0;
             transition: opacity 0.2s;

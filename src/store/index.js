@@ -5,12 +5,15 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    footerOpen: "false"
+    footerOpen: false,
+    playerName: "",
   },
   mutations: {
     setFooterOpen(state, payload){
-      console.log("que passa aqui")
       state.footerOpen = payload
+    },
+    setPlayerName(state, payload){
+      state.playerName = payload
     }
   },
   actions: {

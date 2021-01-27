@@ -7,7 +7,8 @@
             gain: state == 'gain',
             gameover: state == 'gameover',
             levelup: state == 'levelup',
-            gamestart: state == 'gamestart'
+            gamestart: state == 'gamestart',
+            countdown: state == 'countdown',
         }"
     >
         <div class="announcement">
@@ -28,13 +29,13 @@
                     autocomplete="off"
                 >
                 <button style="opacity: 0"></button> <!-- hack to hinder bug where button.minus-one is acted on when input enter key is pressed -->
-                <label for="grad">Velg vansklighets grad</label>
+                <label for="difficulty">Velg vansklighets grad</label>
                 <div class="difficulty">
                     <button class="minus-one" @click.prevent="changeOption(-1)"> < </button>
                     <select 
                         v-model="option" 
                         :class="selectClass" 
-                        id="grad" 
+                        id="difficulty" 
                         @change="playAnim"
                         ref="select"
                     >
@@ -70,16 +71,38 @@ export default {
             option: "start",
             nameIsValid: true,
             name: "",
+            countdown: 3
 
         }
     },
     methods: {
-        ... mapMutations(['setFooterOpen']),
+        ... mapMutations(['setFooterOpen','setPlayerName']),
 
         startGame(form){
-            if(this.name == "") return this.nameIsValid = false
-            console.log("mhmmm: ",form["target"].navn.value)
-            this.$emit('gamestartEvent')
+            if(this.name == "") { 
+                this.nameIsValid = false
+                this.$refs.navn.focus()
+                return
+            }
+            this.setPlayerName(form["target"].navn.value)
+            
+            let startTimer = () => {
+                this.setState('countdown')
+                setTimeout(() => {
+                    if(this.countdown <= 1){
+                        this.$emit('gamestartEvent', form["target"].difficulty.value)
+                        this.setState('idle')
+                    }else {
+                        this.setState('idle')
+                        setTimeout(() => {
+                            this.countdown -= 1
+                            startTimer()
+                        },1)
+                    }
+                }, 700)
+            }
+            startTimer()
+                
         },
 
         playAnim(){
@@ -149,12 +172,15 @@ export default {
             }
 
             if(state == 'gamestart'){
-                console.log("Que")
+                
+            }
+            if(state == 'countdown'){
+                this.text = this.countdown
             }
         }
     },
     mounted() {
-        setTimeout(() => console.log(this.$refs.navn.focus()),10)
+        setTimeout(() => this.$refs.navn.focus(),10)
     },
     computed: {
         footerOpen(){
@@ -223,6 +249,10 @@ export default {
     &.show{
         display: block;
     }
+}
+
+.form {
+    display: none;
 }
 
 .gamestart {
@@ -387,6 +417,13 @@ export default {
     }
 }
 
+.countdown {
+    .announcement h2{
+        font-size: 260px !important;
+    }
+    animation: grow-small 0.7s;
+}
+
 .levelup {
     transition: all 0.2s;
     opacity: 1;
@@ -414,5 +451,9 @@ export default {
     0% {transform: scale(1); pointer-events: none;}
     50% {transform: scale(1.2); pointer-events: none;}
     100%{transform: scale(1);}
+}
+@keyframes grow-small {
+    0% {transform: scale(1); opacity: 1;}
+    100% {transform: scale(0); opacity: 0;}
 }
 </style>
