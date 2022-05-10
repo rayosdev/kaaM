@@ -1,11 +1,13 @@
 .game-container {
     display: grid;
-
-    width: 100%;
+    padding-top: 2rem;
+    gap: 2rem;
+    max-width: 100%;
     height: 100%;
-    width: 1200px;
 
-    padding-top: 80px;
+    @media (max-width: $tablet-big) {
+        border: solid red 14px !important;
+    }
 }
 
 .game-board {grid-area: gb;}
@@ -17,7 +19,6 @@
     background: #fff;
     width: 700px;
     height: 700px;
-    margin-right: 80px;
 }
 
 .score-board {
@@ -25,6 +26,12 @@
     width: 300px;
     height: 700px;
     background: #3F3F3F;
+
+    @media (max-width: $tablet) {
+        grid-column: 2/3;
+        position: fixed;
+        border: solid red 14px !important;
+    }
 }
 
 .game-board,

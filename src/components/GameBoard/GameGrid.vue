@@ -427,6 +427,12 @@ export default {
     position: relative;
     overflow: hidden;
     border-radius: 0px 0px 8px 8px;
+
+    @media (max-width: $mobile){
+        display: grid;
+        grid-template-columns: repeat(17, 1fr);
+        grid-template-rows: repeat(15, 1fr);
+    }
 }
 
 .snake-head-title {
@@ -441,15 +447,25 @@ export default {
 }
 
 .grid-block {
-    height: 40.9px;
-    width: 40.9px;
+    height: 2.5rem;
+    width: 2.5rem;
     display: grid;
     justify-content: center;
     align-content: center;
     border: solid 0.2px $light-light-gray;
     font-weight: 700;
-    font-size: 16px;
+    font-size: 1rem;
     color:#ffffff00;
+
+    @media (max-width: $mobile) {
+        height: auto;
+        width: auto;
+        min-width: 2rem;
+        min-height: 2rem;
+    }
+    @media (max-width: $mobile-medium){
+        max-height: 2rem;
+    }
 }
 
 .snake {

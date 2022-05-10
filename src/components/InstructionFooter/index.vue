@@ -7,30 +7,17 @@
                 @click="setFooterOpen(!show)"
             >
                 <div class="content">
-
-                    <div class="instructions" :class="{show : show}">
-                        <div class="first">
-                            <h4>1.</h4>
-                            <p>bruk pill tastene på tastaturet til å styre ormen</p>
-                            <img src="../assets/instruction-gp1.png" alt="">
-                        </div>
-                        <div class="second">
-                            <h4>2.</h4>
-                            <p>Match summen på frukten og ormen for å få poeng</p>
-                            <img src="../assets/instruction-gp2.png" alt="">
-                        </div>
-                        <div class="third">
-                            <h4>3.</h4>
-                            <p>Hver gang nivået økes, blir ormen lengre, det blir flere eppler eller så økes farten</p>
-                            <img src="../assets/instruction-gp3.png" alt="">
-                        </div>
-                    </div>
-
                     <div class="show-button">
                         <p>{{show ? 'Lukk igjen spill instruktionene' : 'Åpne opp spill instruktionene'}}</p>
                         <button alt="se hvordan å spille"> > </button>
                     </div>
-
+                    <div class="instruction-cards" :class="{show : show}">
+                        <card v-for="(card, index) in cards" :key="index"
+                            :cardNumber="index + 1" 
+                            :cardText="card.text" 
+                            :image="card.image"
+                        />
+                    </div>
                 </div>
                 
             </div>
@@ -45,10 +32,25 @@
 
 <script>
 import { mapMutations } from 'vuex'
+import Card from './Card.vue'
 export default {
+    components: { Card },
     data() {
         return {
-            
+            cards: [
+                {
+                    text: "Bruk pill tastene på tastaturet til å styre ormen",
+                    image: "instruction-gp1.png",
+                },
+                {
+                    text: "Match summen på frukten og ormen for å få poeng",
+                    image: "instruction-gp2.png",
+                },
+                {
+                    text: "Hver gang nivået økes, blir ormen lengre, det blir flere eppler eller så økes farten",
+                    image: "instruction-gp3.png",
+                },
+            ]
         }
     },
     methods: {
@@ -66,14 +68,13 @@ export default {
 .instruction-footer {
     grid-row: 2/3;
     grid-column: 1/5;
-    width: 100vw;
+    width: 100%;
     max-height: 200px;
     height: 100%;
     align-self: end;
     position: relative;
 
     .wrapper {
-
         .container {
             position: absolute;
             background: #2E2E2E;
@@ -100,6 +101,14 @@ export default {
             padding: 1em;
             grid-auto-flow: column;
 
+            @media (max-width: $tablet) {
+                padding: 0;
+            }
+            @media (max-width: $mobile-medium){
+                margin: 0.1rem;
+                width: 80%;
+            }
+
             .show-button {
                 justify-self: end;
                 align-self: start;
@@ -109,23 +118,30 @@ export default {
 
         }
         
-        .instructions {
-            grid-column: 1/3;
-            grid-row: 1/2;
+        .instruction-cards {
             width: 100%;
             height: 90%;
-            padding-top: 2em;
             display: grid;
-            overflow: hidden;
-            grid-template-rows: 1fr 1fr 1fr;
+            grid-column: 1/3;
+            grid-row: 1/2;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 2rem;
+            align-content: center;
+
             opacity: 0;
             transition: opacity 0.2s;
+
+            @media (max-width: $mobile) {
+                grid-auto-flow: row;
+                grid-template-columns: 1fr;
+                align-self: center;
+            }
 
             &.show {
                 transition: opacity 0.2s 0.2s;
                 opacity: 1;
                 
-                & div {
+                & article {
                     opacity: 0.6;
                     transition: opacity 0.2s;
                     &:hover {
@@ -134,54 +150,6 @@ export default {
                         cursor: context-menu;
                     }
                 }
-            }
-
-            .first{            
-                justify-self: start;
-                align-self: start;
-            }
-            .second{
-                justify-self: center;
-                align-self: center;
-            }
-            .third{
-                justify-self: end;
-                align-self: end;
-            }
-
-            .first,
-            .second,
-            .third {
-                display: flex;
-                opacity: 0;
-
-                h4 {
-                    display: inline;
-                    font-size: 16px;
-                    font-weight: 900;
-                    transform: translateY(2px);
-                }
-                
-                p {
-                    max-width: 200px;
-                    margin: 0;
-                    margin-right: 1.5em;
-                    margin-left: 10px;
-                    letter-spacing: 5%;
-                    line-height: 150%;
-                    text-align: left;
-                }
-
-                img  {
-                    width: 100%;
-                    max-width: 150px;
-                    height: unset;
-                }
-            }
-
-            .third img {
-                width: 60px;
-                height: 50px;
             }
         }
     }
